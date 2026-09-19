@@ -7,14 +7,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Schiller_DisV_16">
+    Title="Colorbox">
 
     <Window.SystemBackdrop>
         <DesktopAcrylicBackdrop/>
     </Window.SystemBackdrop>
 
     <!-- ja se v tom uz nevyznam.......................... -->
-    
+
     <Grid>
         <!-- Grid.RowDefinitions>
             <RowDefinition Height="32" />
@@ -138,10 +138,18 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                            Text="Saved Colors"
-                            Style="{ThemeResource TitleTextBlockStyle}"
-                            VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="Saved Colors"
+                                   Style="{ThemeResource TitleTextBlockStyle}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="0 saved"
+                                   x:Name="SavedColorsCount"
+                                   Style="{ThemeResource BodyTextBlockStyle}"
+                                   Opacity="0.6"
+                                   VerticalAlignment="Bottom"
+                                   Margin="0,0,0,3"/>
+                    </StackPanel>
 
                     <Button Grid.Column="1"
                          Content="Save to file"

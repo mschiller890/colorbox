@@ -54,6 +54,7 @@ namespace Schiller_DisV_16
             ColorHistory.ItemsSource = ColorList;
         }
 
+        // tohle by asi slo zkombinovat do renderPreview co
         private void R_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             rValue = (int)e.NewValue;
@@ -93,27 +94,34 @@ namespace Schiller_DisV_16
 
             ContentDialog inputDialog = new ContentDialog
             {
-                Title = "Name your color",
+                Title = "Name your color", 
                 Content = inputTextBox,
                 PrimaryButtonText = "Save",
                 CloseButtonText = "Cancel",
+                //IsSecondaryButtonEnabled = true,
                 DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.Content.XamlRoot // targetuje window layer
+                XamlRoot = this.Content.XamlRoot // targetuje window layer jako k cemu ten dialog patri nebo tak neco
             };
 
+            // i like this tho
             ContentDialogResult result = await inputDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
+                //                                                         true              false 
                 string name = string.IsNullOrWhiteSpace(inputTextBox.Text) ? "Unnamed Color" : inputTextBox.Text;
 
                 var newSavedColor = new ColorItem
                 {
                     ColorText = $"{name} (RGB: {rValue}, {gValue}, {bValue})",
+                    //                                                   explicitni conversion pane uciteli!!! jste na me pysny??
                     ColorBrush = new SolidColorBrush(Color.FromArgb(255, (byte)rValue, (byte)gValue, (byte)bValue))
                 };
 
                 ColorList.Add(newSavedColor);
+
+                SavedColorsCount.Text = $"{ColorList.Count.ToString()} saved";
+
                 UpdateEmptyState();
             }
         }
@@ -125,6 +133,7 @@ namespace Schiller_DisV_16
             if (sender is MenuFlyoutItem menuItem && menuItem.CommandParameter is ColorItem targetColor)
             {
                 ColorList.Remove(targetColor);
+                SavedColorsCount.Text = $"{ColorList.Count.ToString()} saved";
                 UpdateEmptyState();
             }
         }
@@ -143,7 +152,7 @@ namespace Schiller_DisV_16
 
             // tohle se mi ale libi
             savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
+            savePicker.FileTypeChoices.Add("Plain Text Color File", new List<string>() { ".txt" });
             savePicker.SuggestedFileName = "SavedColors";
 
             Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
@@ -195,13 +204,17 @@ namespace Schiller_DisV_16
                             int rgbIndex = line.LastIndexOf("(RGB:");
                             if (rgbIndex != -1)
                             {
+                                // values se ukladaji ve forme << Name (RGB: R, G, B) >>
+                                // RGB: a zavorky odstranime a oceseme whitespace, pote oddelime RGB hodnoty mezi ","
                                 string cleanRgb = line.Substring(rgbIndex).Replace("(RGB:", "").Replace(")", "").Trim();
                                 string[] parts = cleanRgb.Split(',');
 
+                                // safety
                                 if (parts.Length == 3 &&
                                     // nejak nechapu proc bytes, ale microsoft ma vic questionable veci
-                                    // future ja: uz chapu, 1B uklada 256 (0-255) coz coincidentally jsou values RGB
-                                    // kanalu
+                                    // future ja: uz chapu, 1B dokaze ulozit az 256 (0-255) hodnot coz
+                                    // coincidentally jsou values RGB kanalu
+                                    //                             out vytvori novou promennou s vystupem TryParse
                                     byte.TryParse(parts[0].Trim(), out byte r) &&
                                     byte.TryParse(parts[1].Trim(), out byte g) &&
                                     byte.TryParse(parts[2].Trim(), out byte b))
@@ -211,6 +224,7 @@ namespace Schiller_DisV_16
                                         ColorText = line,
                                         ColorBrush = new SolidColorBrush(Color.FromArgb(255, r, g, b))
                                     });
+                                    SavedColorsCount.Text = $"{ColorList.Count.ToString()} saved";
                                     UpdateEmptyState();
                                 }
                             }
@@ -223,6 +237,9 @@ namespace Schiller_DisV_16
                 }
             }
         }
+
+        // tohle je hlavne pro user experience, prazdny misto je takovy eh
+        // kdyz v ColorHistory nic neni, tak je EmptyColorsText visible.
         private void UpdateEmptyState()
         {
             EmptyColorsText.Visibility =
