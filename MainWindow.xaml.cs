@@ -1,7 +1,9 @@
+using Microsoft.UI.Composition;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
@@ -32,6 +34,8 @@ namespace Schiller_DisV_16
         {
             InitializeComponent();
 
+            TheMostFakeSplashInTheWorld();
+
             // to je vec tenhle framework fakt
             this.AppWindow.Resize(new Windows.Graphics.SizeInt32(800, 600));
             ExtendsContentIntoTitleBar = true;
@@ -52,6 +56,43 @@ namespace Schiller_DisV_16
             //SystemBackdrop = new DesktopAcrylicBackdrop();
 
             ColorHistory.ItemsSource = ColorList;
+        }
+
+        private async void TheMostFakeSplashInTheWorld()
+        {
+            await System.Threading.Tasks.Task.Delay(1500);
+
+            FadeOutElement(CustomSplashScreen, 400, () =>
+            {
+                CustomSplashScreen.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private void FadeOutElement(FrameworkElement element, double durationMs, Action onAnimationCompleted)
+        {
+            // vezmem backing composition visual layer for the UI element
+            // ja nevim jak to rict cesky pardon
+            Visual visual = ElementCompositionPreview.GetElementVisual(element);
+            Compositor compositor = visual.Compositor;
+
+            // linearni animace, dobry ne
+            ScalarKeyFrameAnimation fadeAnimation = compositor.CreateScalarKeyFrameAnimation();
+            fadeAnimation.InsertKeyFrame(0.0f, 1.0f);
+            fadeAnimation.InsertKeyFrame(1.0f, 0.0f);
+            fadeAnimation.Duration = TimeSpan.FromMilliseconds(durationMs);
+
+            // vytvorim animation batch a listener kterej ceka az se animace dokonci
+            CompositionScopedBatch batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
+
+            // zacnu animaci na vlastnosti Opacity
+            visual.StartAnimation("Opacity", fadeAnimation);
+
+            // wiring up
+            batch.Completed += (s, e) => onAnimationCompleted?.Invoke();
+            //                 ^                             ^ nullable
+            //                 ^ sender a event (jestli se animace dokoncila)
+            // splash se skryje az skonci animace. Invoke() hned spusti kod
+            batch.End();
         }
 
         // tohle by asi slo zkombinovat do renderPreview co
