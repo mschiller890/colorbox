@@ -1,0 +1,39 @@
+## .NET build outputs
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+
+## Visual Studio generated files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Rider/ReSharper
+.idea/
+*.DotSettings.user
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuget.props
+*.nuget.targets
+
+## Test results
+*.nunit
+results/
+[Tt]est[Rr]esult*/
+*.trx
+
+## Windows / OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+## Publish outputs
+publish/
+*.pubxml.user

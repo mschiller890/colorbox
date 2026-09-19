@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Schiller_DisV_16 (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Schiller_DisV_16 (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
